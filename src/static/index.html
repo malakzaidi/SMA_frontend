@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Rapports Radiologiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background-color: #3f51b5;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #3f51b5;
+            border-color: #3f51b5;
+        }
+        .btn-primary:hover {
+            background-color: #303f9f;
+            border-color: #303f9f;
+        }
+        .btn-outline-primary {
+            color: #3f51b5;
+            border-color: #3f51b5;
+        }
+        .btn-outline-primary:hover {
+            background-color: #3f51b5;
+            color: white;
+        }
+        .form-control:focus {
+            border-color: #3f51b5;
+            box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+        }
+        #recordButton {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        #recordButton.recording {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+        .recording-indicator {
+            color: #dc3545;
+            font-weight: 600;
+            display: none;
+            margin-top: 10px;
+        }
+        #promptTextarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .result-container {
+            display: none;
+        }
+        #reportContent {
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3f51b5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+        /* Styles pour l'authentification */
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .auth-toggle {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .auth-toggle a {
+            color: #3f51b5;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        /* Styles pour l'historique */
+        .history-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .history-item:hover {
+            background-color: #f0f2ff;
+        }
+        .history-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .history-prompt {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .history-type {
+            font-size: 0.85rem;
+            color: #3f51b5;
+        }
+        #historyContainer {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .nav-tabs .nav-link {
+            color: #3f51b5;
+        }
+        .nav-tabs .nav-link.active {
+            color: #303f9f;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Générateur de Rapports Radiologiques</h1>
+        
+        <div id="authContainer" class="auth-container">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user me-2"></i> <span id="authTitle">Connexion</span>
+                </div>
+                <div class="card-body">
+                    <form id="authForm">
+                        <div class="mb-3" id="nameField" style="display: none;">
+                            <label for="nameInput" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="nameInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailInput" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="emailInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordInput" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="passwordInput" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="authButton">Se connecter</button>
+                        </div>
+                    </form>
+                    <div class="auth-toggle">
+                        <span id="authToggleText">Pas encore de compte?</span> 
+                        <a id="authToggleLink">S'inscrire</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mainContainer" style="display: none;">
+            <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab" aria-controls="generator" aria-selected="true">
+                        <i class="fas fa-file-medical me-2"></i>Générateur
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                        <i class="fas fa-history me-2"></i>Historique
+                    </button>
+                </li>
+                <li class="nav-item ms-auto" role="presentation">
+                    <button class="nav-link text-danger" id="logout-tab" type="button">
+                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="mainTabsContent">
+                <div class="tab-pane fade show active" id="generator" role="tabpanel" aria-labelledby="generator-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-keyboard me-2"></i> Saisie du Prompt
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="promptTextarea" class="form-label">Entrez votre description radiologique:</label>
+                                <textarea class="form-control" id="promptTextarea" rows="4" placeholder="Ex: IRM cérébrale standard avec séquences T1, T2, FLAIR et diffusion..."></textarea>
+                            </div>
+                            
+                            <div class="audio-controls">
+                                <button id="recordButton" class="btn btn-outline-primary mb-2">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <div class="recording-indicator" id="recordingIndicator">
+                                    <i class="fas fa-circle me-2"></i> Enregistrement en cours...
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="generateButton">
+                                    <i class="fas fa-cog me-2"></i> Générer le Rapport
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="loader" id="loader"></div>
+                    
+                    <div class="card result-container" id="resultContainer">
+                        <div class="card-header">
+                            <i class="fas fa-file-medical me-2"></i> Rapport Généré
+                        </div>
+                        <div class="card-body">
+                            <div id="reportContent" class="mb-4"></div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="downloadButton">
+                                    <i class="fas fa-download me-2"></i> Télécharger le Rapport
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-history me-2"></i> Historique des Rapports
+                        </div>
+                        <div class="card-body">
+                            <div id="historyContainer">
+                                <!-- L'historique sera chargé dynamiquement ici -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments d'authentification
+            const authContainer = document.getElementById('authContainer');
+            const mainContainer = document.getElementById('mainContainer');
+            const authForm = document.getElementById('authForm');
+            const authTitle = document.getElementById('authTitle');
+            const authButton = document.getElementById('authButton');
+            const authToggleText = document.getElementById('authToggleText');
+            const authToggleLink = document.getElementById('authToggleLink');
+            const nameField = document.getElementById('nameField');
+            const logoutTab = document.getElementById('logout-tab');
+            
+            // Éléments du générateur
+            const recordButton = document.getElementById('recordButton');
+            const recordingIndicator = document.getElementById('recordingIndicator');
+            const promptTextarea = document.getElementById('promptTextarea');
+            const generateButton = document.getElementById('generateButton');
+            const resultContainer = document.getElementById('resultContainer');
+            const reportContent = document.getElementById('reportContent');
+            const downloadButton = document.getElementById('downloadButton');
+            const loader = document.getElementById('loader');
+            const historyContainer = document.getElementById('historyContainer');
+            
+            let mediaRecorder;
+            let audioChunks = [];
+            let isRecording = false;
+            let isLoginMode = true;
+            let currentUser = null;
+            
+            // Vérifier si l'utilisateur est déjà connecté
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showMainInterface();
+                loadUserHistory();
+            }
+            
+            // Basculer entre connexion et inscription
+            authToggleLink.addEventListener('click', function() {
+                isLoginMode = !isLoginMode;
+                if (isLoginMode) {
+                    authTitle.textContent = 'Connexion';
+                    authButton.textContent = 'Se connecter';
+                    authToggleText.textContent = 'Pas encore de compte?';
+                    authToggleLink.textContent = 'S\'inscrire';
+                    nameField.style.display = 'none';
+                } else {
+                    authTitle.textContent = 'Inscription';
+                    authButton.textContent = 'S\'inscrire';
+                    authToggleText.textContent = 'Déjà un compte?';
+                    authToggleLink.textContent = 'Se connecter';
+                    nameField.style.display = 'block';
+                }
+            });
+            
+            // Gérer la soumission du formulaire d'authentification
+            authForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('emailInput').value;
+                const password = document.getElementById('passwordInput').value;
+                
+                if (isLoginMode) {
+                    // Connexion
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const user = users.find(u => u.email === email && u.password === password);
+                    
+                    if (user) {
+                        currentUser = user;
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        showMainInterface();
+                        loadUserHistory();
+                    } else {
+                        alert('Email ou mot de passe incorrect.');
+                    }
+                } else {
+                    // Inscription
+                    const name = document.getElementById('nameInput').value;
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    
+                    if (users.some(u => u.email === email)) {
+                        alert('Cet email est déjà utilisé.');
+                        return;
+                    }
+                    
+                    const newUser = {
+                        id: Date.now().toString(),
+                        name,
+                        email,
+                        password,
+                        history: []
+                    };
+                    
+                    users.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    
+                    currentUser = newUser;
+                    localStorage.setItem('currentUser', JSON.stringify(newUser));
+                    showMainInterface();
+                }
+            });
+            
+            // Déconnexion
+            logoutTab.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                currentUser = null;
+                authForm.reset();
+                mainContainer.style.display = 'none';
+                authContainer.style.display = 'block';
+            });
+            
+            function showMainInterface() {
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'block';
+            }
+            
+            // Charger l'historique de l'utilisateur
+            function loadUserHistory() {
+                if (!currentUser) return;
+                
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.id === currentUser.id);
+                
+                if (user && user.history) {
+                    historyContainer.innerHTML = '';
+                    
+                    if (user.history.length === 0) {
+                        historyContainer.innerHTML = '<div class="text-center p-3 text-muted">Aucun rapport dans l\'historique</div>';
+                        return;
+                    }
+                    
+                    user.history.sort((a, b) => b.timestamp - a.timestamp).forEach(item => {
+                        const historyItem = document.createElement('div');
+                        historyItem.className = 'history-item';
+                        historyItem.innerHTML = `
+                            <div class="history-date">${new Date(item.timestamp).toLocaleString()}</div>
+                            <div class="history-prompt">${item.prompt}</div>
+                            <div class="history-type">${item.examType}</div>
+                        `;
+                        
+                        historyItem.addEventListener('click', function() {
+                            promptTextarea.value = item.prompt;
+                            reportContent.textContent = item.report;
+                            resultContainer.style.display = 'block';
+                            
+                            // Basculer vers l'onglet générateur
+                            document.getElementById('generator-tab').click();
+                        });
+                        
+                        historyContainer.appendChild(historyItem);
+                    });
+                }
+            }
+            
+            // Sauvegarder un rapport dans l'historique
+            function saveToHistory(prompt, report, examType) {
+                if (!currentUser) return;
+                
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                
+                if (userIndex !== -1) {
+                    if (!users[userIndex].history) {
+                        users[userIndex].history = [];
+                    }
+                    
+                    users[userIndex].history.push({
+                        id: Date.now().toString(),
+                        prompt,
+                        report,
+                        examType,
+                        timestamp: Date.now()
+                    });
+                    
+                    localStorage.setItem('users', JSON.stringify(users));
+                    currentUser = users[userIndex];
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }
+            
+            // Audio recording functionality
+            recordButton.addEventListener('click', function() {
+                if (!isRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+            });
+            
+            async function startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = processRecording;
+                    
+                    audioChunks = [];
+                    mediaRecorder.start();
+                    isRecording = true;
+                    
+                    recordButton.classList.add('recording');
+                    recordButton.innerHTML = '<i class="fas fa-stop"></i>';
+                    recordingIndicator.style.display = 'block';
+                } catch (err) {
+                    console.error('Error accessing microphone:', err);
+                    alert('Impossible d\'accéder au microphone. Veuillez vérifier les permissions.');
+                }
+            }
+            
+            function stopRecording() {
+                if (mediaRecorder && isRecording) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    recordButton.classList.remove('recording');
+                    recordButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                    recordingIndicator.style.display = 'none';
+                }
+            }
+            
+            async function processRecording() {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                
+                // Create form data for sending to backend
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                
+                try {
+                    loader.style.display = 'block';
+                    
+                    // Send audio to backend for transcription
+                    const response = await fetch('/api/transcribe', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la transcription');
+                    }
+                    
+                    const data = await response.json();
+                    promptTextarea.value = data.text;
+                    
+                } catch (err) {
+                    console.error('Error transcribing audio:', err);
+                    alert('Erreur lors de la transcription audio. Veuillez réessayer.');
+                } finally {
+                    loader.style.display = 'none';
+                }
+            }
+            
+            // Generate report functionality
+            generateButton.addEventListener('click', async function() {
+                const prompt = promptTextarea.value.trim();
+                
+                if (!prompt) {
+                    alert('Veuillez entrer un prompt ou enregistrer un audio.');
+                    return;
+                }
+                
+                try {
+                    loader.style.display = 'block';
+                    generateButton.disabled = true;
+                    
+                    // Send prompt to backend for report generation
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ prompt: prompt })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la génération du rapport');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display the generated report
+                    reportContent.textContent = data.report;
+                    resultContainer.style.display = 'block';
+                    
+                    // Déterminer le type d'examen
+                    let examType = "IRM générique";
+                    if (data.report.includes("IRM Cérébrale")) {
+                        examType = "IRM cérébrale";
+                    } else if (data.report.includes("IRM du Genou")) {
+                        examType = "IRM du genou";
+                    } else if (data.report.includes("IRM Rachidienne")) {
+                        examType = "IRM rachidienne";
+                    }
+                    
+                    // Sauvegarder dans l'historique
+                    saveToHistory(prompt, data.report, examType);
+                    
+                    // Mettre à jour l'historique affiché
+                    loadUserHistory();
+                    
+                    // Réinitialiser le champ de prompt
+                    promptTextarea.value = '';
+                    
+                } catch (err) {
+                    console.error('Error generating report:', err);
+                    alert('Erreur lors de la génération du rapport. Veuillez réessayer.');
+                } finally {
+                    loader.style.display = 'none';
+                    generateButton.disabled = false;
+                }
+            });
+            
+            // Download report functionality
+            downloadButton.addEventListener('click', async function() {
+                const report = reportContent.textContent;
+                
+                if (!report) {
+                    alert('Aucun rapport à télécharger.');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/download', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ report: report })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la préparation du téléchargement');
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'rapport_radiologique.docx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                } catch (err) {
+                    console.error('Error downloading report:', err);
+                    alert('Erreur lors du téléchargement du rapport. Veuillez réessayer.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
