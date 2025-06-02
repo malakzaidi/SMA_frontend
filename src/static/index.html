@@ -1,285 +1,836 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Générateur de Rapports Radiologiques</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
     <style>
+        :root {
+            --primary-color: #2b6cb0;
+            --secondary-color: #63b3ed;
+            --accent-color: #3182ce;
+            --text-color: #1a202c;
+            --bg-light: #f7fafc;
+            --bg-dark: #1a202c;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-color);
+            transition: all 0.4s ease;
+            overflow-x: hidden;
         }
+
         .container {
-            max-width: 900px;
-            padding: 20px;
+            max-width: 1100px;
+            padding: 40px 20px;
         }
+
         .card {
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            animation: fadeInUp 0.6s ease-out;
         }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .card-header {
-            background-color: #3f51b5;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            border-radius: 15px 15px 0 0 !important;
-            padding: 15px 20px;
-            font-weight: 600;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 20px;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            position: relative;
+            overflow: hidden;
         }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         .btn-primary {
-            background-color: #3f51b5;
-            border-color: #3f51b5;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
         .btn-primary:hover {
-            background-color: #303f9f;
-            border-color: #303f9f;
+            background: linear-gradient(135deg, #2c5282, #5a9bd4);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(43, 108, 176, 0.4);
         }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
         .btn-outline-primary {
-            color: #3f51b5;
-            border-color: #3f51b5;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
+
         .btn-outline-primary:hover {
-            background-color: #3f51b5;
+            background: var(--primary-color);
             color: white;
+            transform: translateY(-2px);
         }
+
+        .form-control {
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
         .form-control:focus {
-            border-color: #3f51b5;
-            box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(43, 108, 176, 0.2);
         }
+
         #recordButton {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            font-size: 24px;
+            font-size: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+
         #recordButton.recording {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            animation: pulse 1.5s infinite;
+            background: linear-gradient(135deg, #e53e3e, #f56565);
+            animation: pulse 1.2s infinite;
+            box-shadow: 0 0 0 8px rgba(229, 62, 62, 0.3);
         }
+
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
+
         .recording-indicator {
-            color: #dc3545;
-            font-weight: 600;
+            color: #e53e3e;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
             display: none;
-            margin-top: 10px;
+            margin-top: 20px;
+            font-size: 1rem;
+            animation: blink 1s infinite;
         }
+
+        @keyframes blink {
+            50% { opacity: 0.6; }
+        }
+
         #promptTextarea {
-            min-height: 120px;
+            min-height: 160px;
             resize: vertical;
+            border-radius: 12px;
+            font-family: 'Roboto Mono', monospace;
         }
+
         .result-container {
             display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            animation: fadeIn 0.5s ease-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         #reportContent {
             white-space: pre-wrap;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: 'Roboto Mono', monospace;
+            line-height: 1.8;
+            color: var(--text-color);
         }
+
         .loader {
             display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3f51b5;
+            border: 6px solid #edf2f7;
+            border-top: 6px solid var(--primary-color);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
+            margin: 30px auto;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
         .audio-controls {
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            margin: 20px 0;
+            margin: 30px 0;
         }
-        /* Styles pour l'authentification */
+
         .auth-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 500px;
+            margin: 60px auto;
+            padding: 40px;
+            animation: slideIn 0.6s ease-out;
         }
+
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         .auth-toggle {
             text-align: center;
-            margin-top: 15px;
-            font-size: 0.9rem;
+            margin-top: 25px;
+            font-size: 1rem;
         }
+
         .auth-toggle a {
-            color: #3f51b5;
+            color: var(--primary-color);
             text-decoration: none;
-            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
+
         .auth-toggle a:hover {
-            text-decoration: underline;
+            color: #2c5282;
         }
-        /* Styles pour l'historique */
+
         .history-item {
             cursor: pointer;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
         }
+
         .history-item:hover {
-            background-color: #f0f2ff;
+            background: rgba(43, 108, 176, 0.1);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
         .history-date {
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.9rem;
+            color: #718096;
+            font-family: 'Roboto Mono', monospace;
         }
+
         .history-prompt {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        .history-type {
-            font-size: 0.85rem;
-            color: #3f51b5;
-        }
-        #historyContainer {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .nav-tabs .nav-link {
-            color: #3f51b5;
-        }
-        .nav-tabs .nav-link.active {
-            color: #303f9f;
             font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .history-type {
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
+        }
+
+        #historyContainer {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--text-color);
+            background: rgba(43, 108, 176, 0.1);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 20px 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #e6f0fa !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            border-bottom: 3px solid white;
+        }
+
+        .hero-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            margin-bottom: 60px;
+            border-radius: 0 0 24px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-description {
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .features-section {
+            padding: 80px 0;
+        }
+
+        .feature-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--text-color);
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .feature-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .agents-section {
+            padding: 80px 0;
+            background: rgba(43, 108, 176, 0.05);
+            border-radius: 24px;
+        }
+
+        .agents-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--text-color);
+        }
+
+        .agent-list li {
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .agent-list li::before {
+            content: '\f0c1';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .homepage-cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .cta-description {
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .card {
+            background: rgba(45, 55, 72, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .card-header {
+            background: linear-gradient(135deg, #4a5568, #718096);
+        }
+
+        body.dark-mode .navbar {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+        }
+
+        body.dark-mode .hero-section,
+        body.dark-mode .homepage-cta {
+            background: linear-gradient(135deg, #4a5568, #718096);
+        }
+
+        body.dark-mode .agents-section {
+            background: rgba(45, 55, 72, 0.1);
+        }
+
+        body.dark-mode .history-item {
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .history-item:hover {
+            background: rgba(113, 128, 150, 0.2);
+        }
+
+        body.dark-mode .form-control {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .result-container {
+            background: rgba(45, 55, 72, 0.95);
+        }
+
+        body.dark-mode .feature-card {
+            background: rgba(45, 55, 72, 0.95);
+        }
+
+        body.dark-mode .nav-tabs .nav-link.active {
+            background: rgba(113, 128, 150, 0.2);
+        }
+
+        .radiology-icon::before {
+            content: '\f7ba';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-description {
+                font-size: 1.2rem;
+            }
+            .container {
+                padding: 20px;
+            }
+            .feature-title, .agents-title, .cta-title {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Générateur de Rapports Radiologiques</h1>
-        
-        <div id="authContainer" class="auth-container">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-user me-2"></i> <span id="authTitle">Connexion</span>
-                </div>
-                <div class="card-body">
-                    <form id="authForm">
-                        <div class="mb-3" id="nameField" style="display: none;">
-                            <label for="nameInput" class="form-label">Nom</label>
-                            <input type="text" class="form-control" id="nameInput" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="emailInput" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="emailInput" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="passwordInput" class="form-label">Mot de passe</label>
-                            <input type="password" class="form-control" id="passwordInput" required>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary" id="authButton">Se connecter</button>
-                        </div>
-                    </form>
-                    <div class="auth-toggle">
-                        <span id="authToggleText">Pas encore de compte?</span> 
-                        <a id="authToggleLink">S'inscrire</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" id="navbar-brand">
+                <i class="fas fa-x-ray me-2 radiology-icon"></i>RadioReport
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="home-link"><i class="fas fa-home me-1"></i> Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="generator-link"><i class="fas fa-file-medical me-1"></i> Générateur</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="history-link"><i class="fas fa-history me-1"></i> Historique</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button id="themeToggle" class="theme-toggle btn btn-outline-light me-3" title="Changer de thème">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="userSection">
+                        <button class="btn btn-outline-primary me-2" id="loginBtn" title="Se connecter"><i class="fas fa-sign-in-alt me-1"></i> Connexion</button>
+                        <button class="btn btn-primary" id="registerBtn" title="S'inscrire"><i class="fas fa-user-plus me-1"></i> Inscription</button>
+                    </div>
+                    <div id="loggedInSection" style="display: none;">
+                        <span class="me-2 text-white" id="userNameDisplay"></span>
+                        <button class="btn btn-outline-danger" id="logoutBtn" title="Se déconnecter">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div id="mainContainer" style="display: none;">
-            <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab" aria-controls="generator" aria-selected="true">
-                        <i class="fas fa-file-medical me-2"></i>Générateur
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
-                        <i class="fas fa-history me-2"></i>Historique
-                    </button>
-                </li>
-                <li class="nav-item ms-auto" role="presentation">
-                    <button class="nav-link text-danger" id="logout-tab" type="button">
-                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
-                    </button>
-                </li>
-            </ul>
-            
-            <div class="tab-content" id="mainTabsContent">
-                <div class="tab-pane fade show active" id="generator" role="tabpanel" aria-labelledby="generator-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-keyboard me-2"></i> Saisie du Prompt
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="promptTextarea" class="form-label">Entrez votre description radiologique:</label>
-                                <textarea class="form-control" id="promptTextarea" rows="4" placeholder="Ex: IRM cérébrale standard avec séquences T1, T2, FLAIR et diffusion..."></textarea>
-                            </div>
-                            
-                            <div class="audio-controls">
-                                <button id="recordButton" class="btn btn-outline-primary mb-2">
-                                    <i class="fas fa-microphone"></i>
-                                </button>
-                                <div class="recording-indicator" id="recordingIndicator">
-                                    <i class="fas fa-circle me-2"></i> Enregistrement en cours...
+    </nav>
+
+    <!-- Page d'accueil -->
+    <div id="homepageContainer">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <h1 class="hero-title"><i class="fas fa-x-ray me-2 radiology-icon"></i> Générateur de Rapports Radiologiques</h1>
+                        <p class="hero-description">Créez des rapports radiologiques structurés et précis grâce à notre système multi-agents alimenté par une IA de pointe.</p>
+                        <button class="btn btn-light btn-lg" id="startBtn" title="Démarrer l'expérience">
+                            <i class="fas fa-play me-2"></i> Commencer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="feature-title">Fonctionnalités Avancées</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-microphone-alt"></i>
                                 </div>
-                            </div>
-                            
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-primary" id="generateButton">
-                                    <i class="fas fa-cog me-2"></i> Générer le Rapport
-                                </button>
+                                <h3 class="feature-name">Dictée Vocale</h3>
+                                <p>Dictez vos observations radiologiques pour une saisie rapide et fluide.</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="loader" id="loader"></div>
-                    
-                    <div class="card result-container" id="resultContainer">
-                        <div class="card-header">
-                            <i class="fas fa-file-medical me-2"></i> Rapport Généré
+                    <div class="col-md-4 mb-4">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h3 class="feature-name">IA de Pointe</h3>
+                                <p>Analyse intelligente pour des rapports radiologiques précis.</p>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div id="reportContent" class="mb-4"></div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-primary" id="downloadButton">
-                                    <i class="fas fa-download me-2"></i> Télécharger le Rapport
-                                </button>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-file-export"></i>
+                                </div>
+                                <h3 class="feature-name">Export DOCX</h3>
+                                <p>Téléchargez vos rapports au format DOCX pour une intégration facile.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-history me-2"></i> Historique des Rapports
-                        </div>
-                        <div class="card-body">
-                            <div id="historyContainer">
-                                <!-- L'historique sera chargé dynamiquement ici -->
+            </div>
+        </section>
+
+        <!-- Agents Section -->
+        <section class="agents-section">
+            <div class="container">
+                <h2 class="agents-title">Système Multi-Agents</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="mb-4">Agents Spécialisés</h3>
+                        <ul class="agent-list">
+                            <li><strong>Agent d'Analyse:</strong> Extrait les informations clés des données brutes</li>
+                            <li><strong>Agent de Structuration:</strong> Organise selon les standards radiologiques</li>
+                            <li><strong>Agent de Rédaction:</strong> Produit des rapports professionnels</li>
+                            <li><strong>Agent de Mémoire:</strong> Gère l'historique et les analyses</li>
+                            <li><strong>Agent Expert:</strong> Valide avec des règles médicales</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-cogs me-2"></i> Avantages du SMA
                             </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <h4><i class="fas fa-shield-alt text-success me-2"></i> Robustesse</h4>
+                                    <p>Continuité assurée même en cas de défaillance d'un agent.</p>
+                                </div>
+                                <div class="mb-4">
+                                    <h4><i class="fas fa-expand-arrows-alt text-success me-2"></i> Évolutivité</h4>
+                                    <p>Ajout simple de nouveaux agents pour plus de fonctionnalités.</p>
+                                </div>
+                                <div class="mb-4">
+                                    <h4><i class="fas fa-tasks text-success me-2"></i> Spécialisation</h4>
+                                    <p>Optimisation des tâches pour une précision maximale.</p>
+                                </div>
+                                <div>
+                                    <h4><i class="fas fa-users-cog text-success me-2"></i> Intelligence Collective</h4>
+                                    <p>Collaboration pour des résultats supérieurs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="homepage-cta">
+            <div class="container">
+                <h2 class="cta-title">Transformez Vos Rapports Radiologiques</h2>
+                <p class="cta-description">Rejoignez les professionnels qui optimisent leur workflow avec notre solution IA.</p>
+                <button class="btn btn-light btn-lg" id="ctaStartBtn" title="Commencer maintenant">
+                    <i class="fas fa-rocket me-2"></i> Commencer Maintenant
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Conteneur d'authentification -->
+    <div id="authContainer" class="auth-container" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-shield me-2 radiology-icon"></i> <span id="authTitle">Connexion</span>
+            </div>
+            <div class="card-body">
+                <form id="authForm">
+                    <div class="mb-4" id="nameField" style="display: none;">
+                        <label for="nameInput" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nameInput" required/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="emailInput" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="emailInput" required/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="passwordInput" class="form-label">Mot de passe</label>
+                        <input type="password" class="form-control" id="passwordInput" required/>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="authButton" title="Se connecter">Se connecter</button>
+                    </div>
+                </form>
+                <div class="auth-toggle">
+                    <span id="authToggleText">Pas encore de compte?</span>
+                    <a href="#" id="authToggleLink">S'inscrire</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div id="mainContainer" class="container mt-5" style="display: none;">
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab" aria-controls="generator" aria-selected="true">
+                    <i class="fas fa-file-medical me-2"></i> Générateur
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                    <i class="fas fa-history me-2"></i> Historique
+                </button>
+            </li>
+            <li class="nav-item ms-auto" role="presentation">
+                <button class="nav-link text-danger" id="logout-tab" type="button" title="Se déconnecter">
+                    <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="mainTabsContent">
+            <div class="tab-pane fade show active" id="generator" role="tabpanel" aria-labelledby="generator-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-keyboard me-2 radiology-icon"></i> Saisie du Prompt
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <label for="promptTextarea" class="form-label">Entrez votre description radiologique:</label>
+                            <textarea class="form-control" id="promptTextarea" rows="6" placeholder="Ex: IRM cérébrale standard avec séquences T1, T2, FLAIR et diffusion..."></textarea>
+                        </div>
+
+                        <div class="audio-controls">
+                            <button id="recordButton" class="btn btn-outline-primary mb-3" title="Enregistrer l'audio">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <div class="recording-indicator" id="recordingIndicator">
+                                <i class="fas fa-circle me-2"></i> Enregistrement en cours...
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="generateButton" title="Générer le rapport">
+                                <i class="fas fa-cog me-2"></i> Générer le Rapport
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loader" id="loader"></div>
+
+                <div class="card result-container" id="resultContainer">
+                    <div class="card-header">
+                        <i class="fas fa-file-medical me-2 radiology-icon"></i> Rapport Généré
+                    </div>
+                    <div class="card-body">
+                        <div id="reportContent" class="mb-4"></div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="downloadButton" title="Télécharger le rapport">
+                                <i class="fas fa-download me-2"></i> Télécharger le Rapport
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2 radiology-icon"></i> Historique des Rapports
+                    </div>
+                    <div class="card-body">
+                        <div id="historyContainer">
+                            <!-- L'historique sera chargé dynamiquement ici -->
                         </div>
                     </div>
                 </div>
@@ -287,20 +838,42 @@
         </div>
     </div>
 
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabButton" title="Retour à l'accueil">
+        <i class="fas fa-home"></i>
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Éléments d'authentification
+            // Éléments de navigation
+            const homepageContainer = document.getElementById('homepageContainer');
             const authContainer = document.getElementById('authContainer');
             const mainContainer = document.getElementById('mainContainer');
+            const homeLink = document.getElementById('home-link');
+            const generatorLink = document.getElementById('generator-link');
+            const historyLink = document.getElementById('history-link');
+            const navbarBrand = document.getElementById('navbar-brand');
+            const startBtn = document.getElementById('startBtn');
+            const ctaStartBtn = document.getElementById('ctaStartBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutTab = document.getElementById('logout-tab');
+            const userSection = document.getElementById('userSection');
+            const loggedInSection = document.getElementById('loggedInSection');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const fabButton = document.getElementById('fabButton');
+            const themeToggle = document.getElementById('themeToggle');
+
+            // Éléments d'authentification
             const authForm = document.getElementById('authForm');
             const authTitle = document.getElementById('authTitle');
             const authButton = document.getElementById('authButton');
             const authToggleText = document.getElementById('authToggleText');
             const authToggleLink = document.getElementById('authToggleLink');
             const nameField = document.getElementById('nameField');
-            const logoutTab = document.getElementById('logout-tab');
-            
+
             // Éléments du générateur
             const recordButton = document.getElementById('recordButton');
             const recordingIndicator = document.getElementById('recordingIndicator');
@@ -311,23 +884,136 @@
             const downloadButton = document.getElementById('downloadButton');
             const loader = document.getElementById('loader');
             const historyContainer = document.getElementById('historyContainer');
-            
+
             let mediaRecorder;
             let audioChunks = [];
             let isRecording = false;
             let isLoginMode = true;
             let currentUser = null;
-            
+
             // Vérifier si l'utilisateur est déjà connecté
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
                 currentUser = JSON.parse(storedUser);
-                showMainInterface();
+                updateUserInterface(true);
                 loadUserHistory();
             }
-            
+
+            // Fonctions de navigation
+            function showHomepage(event) {
+                event.preventDefault();
+                homepageContainer.style.display = 'block';
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'none';
+                homeLink.classList.add('active');
+                generatorLink.classList.remove('active');
+                historyLink.classList.remove('active');
+                fabButton.style.display = 'none';
+            }
+
+            function showAuth(event) {
+                event.preventDefault();
+                homepageContainer.style.display = 'none';
+                authContainer.style.display = 'block';
+                mainContainer.style.display = 'none';
+                homeLink.classList.remove('active');
+                generatorLink.classList.remove('active');
+                historyLink.classList.remove('active');
+                fabButton.style.display = 'block';
+            }
+
+            function showGenerator(event) {
+                event.preventDefault();
+                if (!currentUser) {
+                    showAuth(event);
+                    return;
+                }
+                homepageContainer.style.display = 'none';
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'block';
+                document.getElementById('generator-tab').click();
+                homeLink.classList.remove('active');
+                generatorLink.classList.add('active');
+                historyLink.classList.remove('active');
+                fabButton.style.display = 'block';
+            }
+
+            function showHistory(event) {
+                event.preventDefault();
+                if (!currentUser) {
+                    showAuth(event);
+                    return;
+                }
+                homepageContainer.style.display = 'none';
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'block';
+                document.getElementById('history-tab').click();
+                homeLink.classList.remove('active');
+                generatorLink.classList.remove('active');
+                historyLink.classList.add('active');
+                fabButton.style.display = 'block';
+                loadUserHistory();
+            }
+
+            // Mise à jour de l'interface utilisateur
+            function updateUserInterface(isLoggedIn) {
+                if (isLoggedIn) {
+                    userSection.style.display = 'none';
+                    loggedInSection.style.display = 'flex';
+                    userNameDisplay.textContent = currentUser.name;
+                } else {
+                    userSection.style.display = 'flex';
+                    loggedInSection.style.display = 'none';
+                    userNameDisplay.textContent = '';
+                }
+            }
+
+            // Événements de navigation
+            homeLink.addEventListener('click', showHomepage);
+            generatorLink.addEventListener('click', showGenerator);
+            historyLink.addEventListener('click', showHistory);
+            navbarBrand.addEventListener('click', showHomepage);
+            startBtn.addEventListener('click', showGenerator);
+            ctaStartBtn.addEventListener('click', showGenerator);
+            fabButton.addEventListener('click', showHomepage);
+            loginBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                isLoginMode = true;
+                authTitle.textContent = 'Connexion';
+                authButton.textContent = 'Se connecter';
+                authToggleText.textContent = 'Pas encore de compte?';
+                authToggleLink.textContent = 'S\'inscrire';
+                nameField.style.display = 'none';
+                showAuth(event);
+            });
+            registerBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                isLoginMode = false;
+                authTitle.textContent = 'Inscription';
+                authButton.textContent = 'S\'inscrire';
+                authToggleText.textContent = 'Déjà un compte?';
+                authToggleLink.textContent = 'Se connecter';
+                nameField.style.display = 'block';
+                showAuth(event);
+            });
+            logoutBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                localStorage.removeItem('currentUser');
+                currentUser = null;
+                updateUserInterface(false);
+                showHomepage(event);
+            });
+            logoutTab.addEventListener('click', function(event) {
+                event.preventDefault();
+                localStorage.removeItem('currentUser');
+                currentUser = null;
+                updateUserInterface(false);
+                showHomepage(event);
+            });
+
             // Basculer entre connexion et inscription
-            authToggleLink.addEventListener('click', function() {
+            authToggleLink.addEventListener('click', function(event) {
+                event.preventDefault();
                 isLoginMode = !isLoginMode;
                 if (isLoginMode) {
                     authTitle.textContent = 'Connexion';
@@ -343,23 +1029,24 @@
                     nameField.style.display = 'block';
                 }
             });
-            
+
             // Gérer la soumission du formulaire d'authentification
-            authForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
+            authForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
                 const email = document.getElementById('emailInput').value;
                 const password = document.getElementById('passwordInput').value;
-                
+
                 if (isLoginMode) {
                     // Connexion
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
                     const user = users.find(u => u.email === email && u.password === password);
-                    
+
                     if (user) {
                         currentUser = user;
                         localStorage.setItem('currentUser', JSON.stringify(user));
-                        showMainInterface();
+                        updateUserInterface(true);
+                        showGenerator(event);
                         loadUserHistory();
                     } else {
                         alert('Email ou mot de passe incorrect.');
@@ -368,12 +1055,12 @@
                     // Inscription
                     const name = document.getElementById('nameInput').value;
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
-                    
+
                     if (users.some(u => u.email === email)) {
                         alert('Cet email est déjà utilisé.');
                         return;
                     }
-                    
+
                     const newUser = {
                         id: Date.now().toString(),
                         name,
@@ -381,80 +1068,62 @@
                         password,
                         history: []
                     };
-                    
+
                     users.push(newUser);
                     localStorage.setItem('users', JSON.stringify(users));
-                    
+
                     currentUser = newUser;
                     localStorage.setItem('currentUser', JSON.stringify(newUser));
-                    showMainInterface();
+                    updateUserInterface(true);
+                    showGenerator(event);
                 }
             });
-            
-            // Déconnexion
-            logoutTab.addEventListener('click', function() {
-                localStorage.removeItem('currentUser');
-                currentUser = null;
-                authForm.reset();
-                mainContainer.style.display = 'none';
-                authContainer.style.display = 'block';
-            });
-            
-            function showMainInterface() {
-                authContainer.style.display = 'none';
-                mainContainer.style.display = 'block';
-            }
-            
+
             // Charger l'historique de l'utilisateur
             function loadUserHistory() {
-                if (!currentUser) return;
-                
+                historyContainer.innerHTML = '';
+                if (!currentUser) {
+                    historyContainer.innerHTML = '<div class="text-center p-4 text-muted">Veuillez vous connecter pour voir l\'historique.</div>';
+                    return;
+                }
+
                 const users = JSON.parse(localStorage.getItem('users') || '[]');
                 const user = users.find(u => u.id === currentUser.id);
-                
-                if (user && user.history) {
-                    historyContainer.innerHTML = '';
-                    
-                    if (user.history.length === 0) {
-                        historyContainer.innerHTML = '<div class="text-center p-3 text-muted">Aucun rapport dans l\'historique</div>';
-                        return;
-                    }
-                    
+
+                if (user && user.history && user.history.length > 0) {
                     user.history.sort((a, b) => b.timestamp - a.timestamp).forEach(item => {
                         const historyItem = document.createElement('div');
                         historyItem.className = 'history-item';
                         historyItem.innerHTML = `
                             <div class="history-date">${new Date(item.timestamp).toLocaleString()}</div>
-                            <div class="history-prompt">${item.prompt}</div>
-                            <div class="history-type">${item.examType}</div>
+                            <div class="history-prompt">${item.prompt.substring(0, 100)}${item.prompt.length > 100 ? '...' : ''}</div>
+                            <div class="history-type"><i class="fas fa-x-ray me-1"></i> ${item.examType}</div>
                         `;
-                        
                         historyItem.addEventListener('click', function() {
                             promptTextarea.value = item.prompt;
                             reportContent.textContent = item.report;
                             resultContainer.style.display = 'block';
-                            
-                            // Basculer vers l'onglet générateur
                             document.getElementById('generator-tab').click();
                         });
-                        
                         historyContainer.appendChild(historyItem);
                     });
+                } else {
+                    historyContainer.innerHTML = '<div class="text-center p-4 text-muted">Aucun rapport dans l\'historique.</div>';
                 }
             }
-            
+
             // Sauvegarder un rapport dans l'historique
             function saveToHistory(prompt, report, examType) {
                 if (!currentUser) return;
-                
+
                 const users = JSON.parse(localStorage.getItem('users') || '[]');
                 const userIndex = users.findIndex(u => u.id === currentUser.id);
-                
+
                 if (userIndex !== -1) {
                     if (!users[userIndex].history) {
                         users[userIndex].history = [];
                     }
-                    
+
                     users[userIndex].history.push({
                         id: Date.now().toString(),
                         prompt,
@@ -462,13 +1131,14 @@
                         examType,
                         timestamp: Date.now()
                     });
-                    
+
                     localStorage.setItem('users', JSON.stringify(users));
                     currentUser = users[userIndex];
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    loadUserHistory();
                 }
             }
-            
+
             // Audio recording functionality
             recordButton.addEventListener('click', function() {
                 if (!isRecording) {
@@ -477,22 +1147,22 @@
                     stopRecording();
                 }
             });
-            
+
             async function startRecording() {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     mediaRecorder = new MediaRecorder(stream);
-                    
+
                     mediaRecorder.ondataavailable = (event) => {
                         audioChunks.push(event.data);
                     };
-                    
+
                     mediaRecorder.onstop = processRecording;
-                    
+
                     audioChunks = [];
                     mediaRecorder.start();
                     isRecording = true;
-                    
+
                     recordButton.classList.add('recording');
                     recordButton.innerHTML = '<i class="fas fa-stop"></i>';
                     recordingIndicator.style.display = 'block';
@@ -501,7 +1171,7 @@
                     alert('Impossible d\'accéder au microphone. Veuillez vérifier les permissions.');
                 }
             }
-            
+
             function stopRecording() {
                 if (mediaRecorder && isRecording) {
                     mediaRecorder.stop();
@@ -511,30 +1181,26 @@
                     recordingIndicator.style.display = 'none';
                 }
             }
-            
+
             async function processRecording() {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                
-                // Create form data for sending to backend
                 const formData = new FormData();
                 formData.append('audio', audioBlob);
-                
+
                 try {
                     loader.style.display = 'block';
-                    
-                    // Send audio to backend for transcription
+                    // Note: Replace with actual transcription API endpoint
                     const response = await fetch('/api/transcribe', {
                         method: 'POST',
                         body: formData
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error('Erreur lors de la transcription');
                     }
-                    
+
                     const data = await response.json();
-                    promptTextarea.value = data.text;
-                    
+                    promptTextarea.value = data.text || 'Transcription non disponible';
                 } catch (err) {
                     console.error('Error transcribing audio:', err);
                     alert('Erreur lors de la transcription audio. Veuillez réessayer.');
@@ -542,58 +1208,48 @@
                     loader.style.display = 'none';
                 }
             }
-            
+
             // Generate report functionality
             generateButton.addEventListener('click', async function() {
                 const prompt = promptTextarea.value.trim();
-                
+
                 if (!prompt) {
                     alert('Veuillez entrer un prompt ou enregistrer un audio.');
                     return;
                 }
-                
+
                 try {
                     loader.style.display = 'block';
                     generateButton.disabled = true;
-                    
-                    // Send prompt to backend for report generation
+
+                    // Note: Replace with actual report generation API endpoint
                     const response = await fetch('/api/generate', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ prompt: prompt })
+                        body: JSON.stringify({ prompt })
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error('Erreur lors de la génération du rapport');
                     }
-                    
+
                     const data = await response.json();
-                    
-                    // Display the generated report
-                    reportContent.textContent = data.report;
+                    reportContent.textContent = data.report || 'Rapport généré avec succès.';
                     resultContainer.style.display = 'block';
-                    
-                    // Déterminer le type d'examen
-                    let examType = "IRM générique";
-                    if (data.report.includes("IRM Cérébrale")) {
-                        examType = "IRM cérébrale";
-                    } else if (data.report.includes("IRM du Genou")) {
-                        examType = "IRM du genou";
-                    } else if (data.report.includes("IRM Rachidienne")) {
-                        examType = "IRM rachidienne";
+
+                    let examType = 'IRM générique';
+                    if (data.report.toLowerCase().includes('cérébrale')) {
+                        examType = 'IRM cérébrale';
+                    } else if (data.report.toLowerCase().includes('genou')) {
+                        examType = 'IRM du genou';
+                    } else if (data.report.toLowerCase().includes('rachidienne')) {
+                        examType = 'IRM rachidienne';
                     }
-                    
-                    // Sauvegarder dans l'historique
+
                     saveToHistory(prompt, data.report, examType);
-                    
-                    // Mettre à jour l'historique affiché
-                    loadUserHistory();
-                    
-                    // Réinitialiser le champ de prompt
                     promptTextarea.value = '';
-                    
                 } catch (err) {
                     console.error('Error generating report:', err);
                     alert('Erreur lors de la génération du rapport. Veuillez réessayer.');
@@ -602,29 +1258,30 @@
                     generateButton.disabled = false;
                 }
             });
-            
+
             // Download report functionality
             downloadButton.addEventListener('click', async function() {
                 const report = reportContent.textContent;
-                
+
                 if (!report) {
                     alert('Aucun rapport à télécharger.');
                     return;
                 }
-                
+
                 try {
+                    // Note: Replace with actual download API endpoint
                     const response = await fetch('/api/download', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ report: report })
+                        body: JSON.stringify({ report })
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error('Erreur lors de la préparation du téléchargement');
                     }
-                    
+
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -634,12 +1291,33 @@
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
-                    
                 } catch (err) {
                     console.error('Error downloading report:', err);
                     alert('Erreur lors du téléchargement du rapport. Veuillez réessayer.');
                 }
             });
+
+            // Theme Toggle
+            const body = document.body;
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            });
+
+            // Afficher la page d'accueil par défaut
+            showHomepage(new Event('click'));
         });
     </script>
 </body>
